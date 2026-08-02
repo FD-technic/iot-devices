@@ -1,0 +1,10 @@
+{
+    "name": "FD Sensors",
+    "version": "1.0.0",
+    "dependencies": [
+        "paulstoffregen/OneWire",
+        "milesburton/DallasTemperature",
+        "adafruit/Adafruit AHTX0",
+        "adafruit/Adafruit BMP280 Library"
+    ]
+}
