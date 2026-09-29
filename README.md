@@ -22,19 +22,19 @@ https://github.com/FD-technic/iot-server
 
 ### ESP32 Weather Station
 
-![ESP32 Weather Station](docs/pic/esp32-weather.jpg)
+![ESP32 Weather Station](docs/pic/ESP32-weather.jpg)
 
 ---
 
 ### ESP32 Temperature Sensor
 
-![ESP32 Temperature Sensor](docs/pic/esp32-temperature.jpg)
+![ESP32 Temperature Sensor](docs/pic/ESP32-temperature.jpg)
 
 ---
 
 ### ESP32 Heating Controller
 
-![ESP32 Heating Controller](docs/pic/esp32-HeatingController.jpg)
+![ESP32 Heating Controller](docs/pic/ESP32-HeatingController.jpg)
 
 ---
 
