@@ -7,11 +7,7 @@
 
 #include "Config.h"
 
-Network network(
-    Config::Wifi::WIFI_SSID,
-    Config::Wifi::WIFI_PASSWORD,
-    Config::Api::SERVER_URL
-);
+Network network;
 
 DallasBus bus(Config::Pins::DALLAS);
 DallasManager manager(bus);
@@ -36,7 +32,7 @@ void setup()
         Serial.println("Dallas init failed");
     }
 
-    manager.addSensor("Outdoor");
+    manager.addSensor(Config::Device::TEMP);
 
     network.begin();
 
@@ -49,7 +45,7 @@ void loop() {
 
     addMeasurements(batch);
 
-    ApiResponse response = network.send(batch);
+    ApiResponse response = network.sendBatch(batch);
     
     //blink();
 

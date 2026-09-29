@@ -1,11 +1,5 @@
 #include "ApiClient.h"
 
-#include <Arduino.h>
-#include <HTTPClient.h>
-#include <ArduinoJson.h>
-#include "dto/apiResponse.h"
-#include "dto/Device.h"
-
 ApiClient::ApiClient(const char* serverUrl)
     : serverUrl(serverUrl)
 {
@@ -58,30 +52,102 @@ ApiResponse ApiClient::sendMeasurements(const MeasurementBatch &batch)
     return post(MEASUREMENT_ENDPOINT, doc);
 }
 
+void ApiClient::sendPeripheralStatus(const PeripheralStatus& status)
+{
+    JsonDocument doc;
+
+    doc["deviceName"] = status.deviceName;
+    doc["heatingMode"] = heatingModeToString(status.heatingMode);
+    doc["valveDirection"] = valveDirectionToString(status.valveDirection);
+    doc["heatingPump"] = status.heatingPump;
+    doc["waterHeaterPump"] = status.waterHeaterPump;
+
+    post((String(DEVICE_ENDPOINT) + "/status").c_str(), doc);
+}
+
 ApiResponse ApiClient::parseResponse(
     int httpCode,
     const String& response)
 {
     JsonDocument doc;
 
-    if (deserializeJson(doc, response))
+    DeserializationError error = deserializeJson(doc, response);
+
+    if (error)
     {
-        return {httpCode, false};
+        return {
+            httpCode,
+            false,
+            {}
+        };
     }
 
-    JsonArray commands = doc["commands"];
+    ApiResponse result;
 
-    if (commands.isNull() || commands.size() == 0)
+    result.httpCode = httpCode;
+    
+    const char* heatingMode = doc["heatingMode"] | "OFF";
+
+    if (strcmp(heatingMode, "DAY") == 0)
     {
-        return {httpCode, false};
+        result.data.heatingMode = HeatingMode::DAY;
+    }
+    else if (strcmp(heatingMode, "NIGHT") == 0)
+    {
+        result.data.heatingMode = HeatingMode::NIGHT;
+    }
+    else if (strcmp(heatingMode, "MANUAL") == 0)
+    {
+        result.data.heatingMode = HeatingMode::MANUAL;
+    }
+    else
+    {
+        result.data.heatingMode = HeatingMode::OFF;
     }
 
-    JsonObject command = commands[0];
+    // REMOTE
+    result.data.remote.outdoor =
+        doc["temperatures"]["outdoor"] | 15.0;
 
-    return {
-        httpCode,
-        command["enabled"] | false
-    };
+    result.data.remote.indoor =
+        doc["temperatures"]["indoor"] | 21.0;
+
+    // TARGETS
+    result.data.target.room =
+        doc["targets"]["room"] | 21.0;
+
+    result.data.target.heatingHysteresis =
+        doc["targets"]["heatingHysteresis"] | 5.0;
+
+    result.data.target.waterHeatingHysteresis =
+        doc["targets"]["waterHeatingHysteresis"] | 3.0;
+
+    result.data.target.waterHeater =
+        doc["targets"]["waterHeater"] | 60.0;
+
+    // MANUAL
+    result.data.manual.heatingPump =
+        doc["manual"]["heatingPump"] | false;
+
+    result.data.manual.waterHeaterPump =
+        doc["manual"]["waterHeaterPump"] | false;
+
+    const char* direction = doc["manual"]["valveDirection"] | "STOP";
+
+    if (strcmp(direction, "UP") == 0)
+    {
+        result.data.manual.valveDirection = ValveDirection::UP;
+    }
+    else if (strcmp(direction, "DOWN") == 0)
+    {
+        result.data.manual.valveDirection = ValveDirection::DOWN;
+    }
+    else
+    {
+        result.data.manual.valveDirection = ValveDirection::STOP;
+    }    
+
+    return result;
 }
 
 ApiResponse ApiClient::post(
@@ -120,7 +186,11 @@ ApiResponse ApiClient::post(
 
     if (code <= 0)
     {
-        return {code, false};
+        return {
+            code,
+            false,
+            {}
+        };
     }
 
     return parseResponse(code, response);

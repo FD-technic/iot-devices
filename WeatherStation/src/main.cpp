@@ -9,11 +9,7 @@
 
 #include "Config.h"
 
-Network network(
-    Config::Wifi::WIFI_SSID,
-    Config::Wifi::WIFI_PASSWORD,
-    Config::Api::SERVER_URL
-);
+Network network;
 
 DallasBus bus(Config::Pins::DALLAS);
 DallasManager manager(bus);
@@ -26,6 +22,7 @@ const int freq = 30;
 const int cyclesBlink = 5;
 
 const int sleeping = 10 * 60 * 1000;
+const uint64_t sleepTime = 10 * 60 * 1000000ULL;
 
 void blink();
 void addMeasurements(MeasurementBatch& batch);
@@ -56,7 +53,7 @@ void setup()
     }
     delay(200);
 
-    manager.addSensor("Outdoor");
+    manager.addSensor("Temperature");
 
     network.begin();
 
@@ -70,11 +67,16 @@ void loop() {
     addMeasurements(batch);
     //addTestMeasurements(batch);
 
-    ApiResponse response = network.send(batch);
+    ApiResponse response = network.sendBatch(batch);
     
     //blink();
 
-    delay(sleeping);
+    // delay(sleeping);
+
+    Serial.println("Usinam...");
+
+    esp_sleep_enable_timer_wakeup(sleepTime);
+    esp_deep_sleep_start();
 }
 
 // === Functions ===

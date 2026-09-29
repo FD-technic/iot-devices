@@ -1,20 +1,19 @@
 #pragma once
 
 #include <WiFiService.h>
-#include <ApiClient.h>
+#include "ApiClient.h"
+#include "HeatingConfig.h"
 
 class Network
 {
 public:
-    Network(
-        const char* ssid,
-        const char* password,
-        const char* serverUrl);
+    Network();
     void begin();
 
     bool isConnected();
 
-    ApiResponse send(const MeasurementBatch& batch);
+    ApiResponse sendBatch(const MeasurementBatch& batch);
+    void sendStatus(const PeripheralStatus& status);
 
 private:
     WiFiService wifi;

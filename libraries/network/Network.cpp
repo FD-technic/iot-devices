@@ -1,11 +1,13 @@
 #include "Network.h"
 
-Network::Network(
-    const char* ssid,
-    const char* password,
-    const char* serverUrl)
-    : wifi(ssid, password),
-    api(serverUrl)
+Network::Network()
+    : wifi(
+        HeatingConfig::WiFi::SSID,
+        HeatingConfig::WiFi::PASSWORD
+    ),
+    api(
+        HeatingConfig::Api::SERVER_URL
+    )
 {
 }
 
@@ -19,10 +21,18 @@ bool Network::isConnected()
     return wifi.isConnected();
 }
 
-ApiResponse Network::send(const MeasurementBatch& batch)
+ApiResponse Network::sendBatch(const MeasurementBatch& batch)
 {
     if (!wifi.isConnected())
         wifi.connect();
 
     return api.sendMeasurements(batch);
+}
+
+void Network::sendStatus(const PeripheralStatus& status)
+{
+    if (!wifi.isConnected())
+        wifi.connect();
+
+    api.sendPeripheralStatus(status);
 }

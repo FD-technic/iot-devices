@@ -1,0 +1,16 @@
+#pragma once
+
+namespace HeatingConfig {
+
+    namespace WiFi {
+        inline constexpr char SSID[] = "YOUR_SSID";
+        inline constexpr char PASSWORD[] = "YOUR_PASSWORD";
+    }
+
+    namespace Api {
+        inline constexpr char SERVER_URL[] = "http://YOUR_SERVER_IP:8080"; 
+        inline constexpr char DEVICE[] = "/api/devices";
+        inline constexpr char MEASUREMENT[] = "/api/measurements";
+    }
+
+}
