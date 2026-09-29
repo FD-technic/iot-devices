@@ -32,6 +32,12 @@ https://github.com/FD-technic/iot-server
 
 ---
 
+### ESP32 Heating Controller
+
+![ESP32 Heating Controller](docs/pic/esp32-HeatingController.jpg)
+
+---
+
 ### IoT Server
 
 The firmware communicates with the Spring Boot backend running on an Orange Pi.
@@ -73,7 +79,13 @@ Collected measurements are available through the backend API.
 - JSON messaging
 - Modular sensor architecture
 - Automatic telemetry reporting
-- Command execution
+- Device status reporting
+- Remote target configuration
+- Manual device control
+- Automatic heating control
+- Heating valve control
+- Heating pump control
+- Water heater pump control
 - PlatformIO support
 - Reusable firmware components
 
@@ -102,6 +114,9 @@ Sensors
 Measurement Layer
     │
     ▼
+Measurement Batch
+    │
+    ▼
 JSON Payload
     │
     ▼
@@ -111,10 +126,19 @@ HTTP Client
 IoT Server
     │
     ▼
-JSON Commands
+Server Response
+    │
+    ├── Targets
+    ├── Heating Mode
+    └── Device Commands
     │
     ▼
-Device Actions
+Device Controllers
+    │
+    ├── Heating Valve
+    ├── Heating Pump
+    └── Water Heater Pump
+
 ```
 
 ---
@@ -129,14 +153,67 @@ Device Actions
 
 ---
 
+# Project structure
+
+```text
+IoT-devices/
+│
+├── HeatingController/
+├── WeatherStation/
+├── StudyStation/
+│
+├── libraries/
+│   ├── core/
+│   ├── network/
+│   └── sensors/
+│
+├── docs/
+│
+├── platformio.ini
+└── README.md
+```
+Shared functionality is organized into reusable libraries.
+Device-specific code remains inside the corresponding device directory.
+
+# Configuration
+
+Local configuration files containing credentials are not stored in the repository.
+
+The shared network configuration uses:
+
+libraries/network/HeatingConfig.h
+
+This file is ignored by Git.
+
+A configuration template is provided as:
+
+*libraries/network/HeatingConfig.h.example*
+
+Copy the example to *HeatingConfig.h* and configure the local Wi-Fi and server settings before building the firmware.
+
+Do not commit *HeatingConfig.h* or other local configuration files containing credentials.
+
 # Getting Started
 
 ## Requirements
 
+- VS Code
 - PlatformIO
 - ESP32 board package
 
 ---
+
+## Configuration
+
+Create the local configuration from the provided template:
+
+```text
+HeatingConfig.h.example
+        ↓
+HeatingConfig.h
+```
+
+Configure the required Wi-Fi and server settings.
 
 ## Build
 
@@ -157,27 +234,33 @@ pio run --target upload
 # Project Status
 
 ## Implemented
-
 - HTTP communication
 - JSON serialization
 - Sensor abstraction
 - Modular architecture
-- Device commands
+- Automatic telemetry reporting
+- Device status reporting
+- Server commands
+- Target temperature configuration
+- Manual control
+- Heating modes
+- Heating valve control
+- Heating pump control
+- Water heater pump control
 
 ## Planned
-
 - OTA firmware updates
 - MQTT support
 - Additional sensors
-- Configuration management
+- Further configuration improvements
 - Deep sleep optimization
 
 ---
 
 # Documentation
 
-- architecture.md
-- roadmap.md
+- [architecture.md](docs/architecture.md)
+- [roadmap.md](docs/roadmap.md)
 
 ---
 
